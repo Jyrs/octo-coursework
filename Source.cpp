@@ -2,6 +2,12 @@
 #include <fstream>
 #include <iomanip>
 #include <windows.h>
+#include <string>
+
+#define _CRT_SECURE_NO_WARNINGS
+#define output cout << setw(3) << left << i + 1 << setw(14) << left << temp[i].surname << setw(14) << left << temp[i].post << setw(14) << left << temp[i].yearEmp << left << temp[i].birthday.day << "." << temp[i].birthday.month << "." << temp[i].birthday.year << setw(5) << right << yearNow - temp[i].yearEmp << " years" << endl;
+
+
 
 using namespace std;
 
@@ -29,6 +35,10 @@ void outPut(WORKER* Emp, int size)
 void sortByExp(WORKER* Emp, int size, int yearNow)
 {
 	int i, j;
+	bool isDigit;
+	char range[4];
+	
+
 	WORKER* temp = new WORKER[size];
 
 	for (i = 0; i < size; i++) temp[i] = Emp[i];
@@ -37,32 +47,79 @@ void sortByExp(WORKER* Emp, int size, int yearNow)
 		for (j = 0; j < size - 1; j++)
 			if (yearNow - temp[j].yearEmp < yearNow - temp[j + 1].yearEmp)
 				swap(temp[j], temp[j + 1]);
-	outPut(temp, size);
 
+	while(1)
+	{ 
+		cout << "N - Back to menu" << endl;
+		cout << endl;
+
+		cout << "Take format: \n " << "<=X \n " <<">=X \n " << "X" << endl;
+		cout << "...And enter the experience range: ";
+		cin >> range;
+		system("cls");
+		cout << "The range is: " << range[0] << range[1] << range[2]  << range[3] << endl;
+
+		if (range[0] == 'N' || range[0] == 'n') { system("cls");  break; }
+
+		cout << setw(3) << left << "№" << setw(14) << left << "Surname" << setw(14) << left << "Post" << setw(14) << left << "YearEmploye"
+			<< setw(14) << left << "Birthday" << setw(14) << left << "Experience" << endl;
+		
+		int digit1;
+
+		if (isdigit(range[0])) 
+		{	
+			digit1 = range[0] - '0'; 
+
+			if (isdigit(range[1])) 
+			{
+				int digit2 = range[1] - '0'; 
+				digit1 = digit1 * 10 + digit2; 
+			}
+			
+			for (int i = 0; i < size - 1; i++)
+				if (yearNow - temp[i].yearEmp == digit1) output;
+		}
+		else if (range[0] == '<')
+		{
+			digit1 = range[2] - '0';
+
+			for (int i = 0; i < size - 1; i++)
+				if (yearNow - temp[i].yearEmp <= digit1) output;
+		}
+		else 
+		{
+			digit1 = range[2] - '0';
+			for (int i = 0; i < size - 1; i++)
+			if (yearNow - temp[i].yearEmp >= digit1) output;
+			
+		}
+		cout << endl; 
+		cout << endl;
+
+	}
 }
 
 
 int main()
 {
 	setlocale(LC_ALL, "rus");
-	ifstream file("File.txt");										// подключение файлового потока ввода-вывода
-	if (!file.is_open()) cout << "File not found" << endl;			// проверка отсуствия файла
+	ifstream file("File.txt");										
+	if (!file.is_open()) cout << "File not found" << endl;			
 	else
 	{
 		int count(1), i(0);
-		WORKER* list = new WORKER[count];													//структура работников
-		file >> list[i].surname >> list[i].post >> list[i].yearEmp >>						// ввод данных из файла
-			list[i].birthday.day >> list[i].birthday.month >> list[i].birthday.year;		//создания массива структуры
+		WORKER* list = new WORKER[count];													
+		file >> list[i].surname >> list[i].post >> list[i].yearEmp >>						
+			list[i].birthday.day >> list[i].birthday.month >> list[i].birthday.year;		
 
 		while (!file.eof())
 		{
-			WORKER* temp = new WORKER[count];						//доп. массив для копирования
+			WORKER* temp = new WORKER[count];						
 
 			for (i = 0; i < count; i++) temp[i] = list[i];
 			delete[] list;
-			i++;
 			count++;
-			list = new WORKER[count];								//резервирование новой памяти
+			list = new WORKER[count];								
 			for (i = 0; i < count - 1; i++) list[i] = temp[i];
 
 			file >> list[count - 1].surname >> list[count - 1].post >> list[count - 1].yearEmp >>
@@ -87,7 +144,7 @@ int main()
 
 			switch (IndexMenu)
 			{
-			case 1:outPut(list, count); break;
+			case 1: { outPut(list, count); break; }
 			case 2:
 			case 3: {
 				SYSTEMTIME st;
@@ -95,10 +152,10 @@ int main()
 				int yearNow = st.wYear;
 				sortByExp(list, count, yearNow);
 				break;
-			}
+				}
 			case 4:
 			case 5: return 0;
-			default: cout << "Неккоректное число" << endl; break;
+			default: {cout << "Неккоректное число" << endl; break; }
 			}
 		}
 	}
